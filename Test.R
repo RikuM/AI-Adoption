@@ -35,37 +35,8 @@ ai_plot <- Ai_headline %>%
   mutate(source = "AI Headline Share")
 
 
-combined_df <- bind_rows(customer_plot, ai_plot)
-
 
 scale_factor <- max(customer_df$value, na.rm = TRUE) / max(Ai_headline$value, na.rm = TRUE)
-
-ggplot(combined_df, aes(x = as.Date(dateString), y = value, color = source)) +
-  geom_line(linewidth = 1.2) +
-  geom_vline(
-    xintercept = as.Date("2022-11-30"),
-    linetype = "dashed",
-    color = "black"
-  ) +
-  annotate(
-    "text",
-    x = as.Date("2022-11-30"),
-    y = max(combined_df$value, na.rm = TRUE),
-    label = "ChatGPT Release",
-    angle = 0,
-    vjust = -0.5,
-    hjust = -0.2,
-    size = 4
-  ) +
-  labs(
-    title = "Indexed Customer Service Job Postings vs AI Interest",
-    x = "Date",
-    y = "Value",
-    color = "Variable"
-  ) +
-  theme_minimal()
-
-
 
 
 ggplot() +
@@ -121,5 +92,7 @@ ggplot() +
     legend.background = element_rect(fill = "black", color = NA),
     
     panel.grid.major = element_line(color = "gray40"),
-    panel.grid.minor = element_line(color = "gray25")
+    panel.grid.minor = element_line(color = "gray25"),
+    axis.line = element_blank(),
+    panel.border = element_blank()
   )
