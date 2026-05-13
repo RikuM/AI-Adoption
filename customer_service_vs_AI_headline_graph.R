@@ -16,8 +16,8 @@ library(readr)
 library(readxl)
 library(dplyr)
 library(ggplot2)
-job_posting <- read.csv("Job_posting_CS_HeadLine.csv")
-Ai_headline <- read.csv("ai-headline-share.csv")
+job_posting <- read.csv("data files/Job_posting_CS_HeadLine.csv")
+Ai_headline <- read.csv("data files/ai-headline-share.csv")
 
 customer_df <- job_posting %>%
   filter(grepl("customer", sectorCode, ignore.case = TRUE))
