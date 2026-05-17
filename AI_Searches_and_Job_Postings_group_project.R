@@ -4,6 +4,10 @@ library(readxl)
 AI_Cust_Serv_Project_1 <- read_excel("C:/Users/Kerry/Documents/school/UWB/BBECN 382, Intro To Econometrics/AI Searches and Job Postings-2.xlsx")
 AI_Cust_Serv_Project_2 <- read_excel("C:/Users/Kerry/Documents/school/UWB/BBECN 382, Intro To Econometrics/AI Searches and Job Postings-2.xlsx", sheet = 2)
 
+# if working from GitHub
+AI_Cust_Serv_Project_1 <- read_excel("data files/AI Searches and Job Postings-2.xlsx")
+AI_Cust_Serv_Project_2 <- read_excel("data files/AI Searches and Job Postings-2.xlsx", sheet = 2)
+
 # or set work directory
 setwd("C:/Users/Kerry/Documents/school/UWB/BBECN 382, Intro To Econometrics")
 AI_Cust_Serv_Project_1 <- read_excel("AI Searches and Job Postings-2.xlsx")
