@@ -37,10 +37,17 @@ df <- read.csv("data files/final_data.csv")
 df <- df %>%
   mutate(Month = mdy(Month))
 
-#Script
+#Script ----
 
   #Scaling for AI vs CS job graph
 scale_factor = max(df$JobPostings, na.rm = TRUE) / max(df$AIHeadlineShare, na.rm = TRUE)
+
+
+  #Min Max Std Dev
+summary(df)
+sd(df$UnemploymentRate)
+
+
 
 
 
