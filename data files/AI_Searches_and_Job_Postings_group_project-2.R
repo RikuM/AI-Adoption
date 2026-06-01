@@ -35,7 +35,7 @@ summary(AIHeadlineShare)
 sd(AIHeadlineShare)
 summary(UnemploymentRate)
 sd(UnemploymentRate)
-length(Date)
+length(Month)
 
 # (2) Detailed summary statistics for all variables
 install.packages("psych")
@@ -75,17 +75,7 @@ print(cor_matrix)
 install.packages("corrplot")  # Only run once
 library(corrplot)
 
-corrplot(cor_matrix, method = "color", type = "upper", tl.cex = 0.8)
-
 # Customize color scale; further formatting 
-corrplot(cor_matrix,
-         method = "color",
-         type = "upper",      # "full" to show the whole matrix, or "lower" to show the lower triangle
-         tl.col = "black",    # label color for variable names
-         tl.cex = 0.8,        # text label size (smaller font). The default is 1.0; so 0.6 is 60% of that
-         tl.srt = 45,         # rotate 45 degrees rotates the text labels by 45 degrees; helps avoid overlapping when variable names are long
-         col = colorRampPalette(c("gold4", "white", "purple4"))(300)) # Smooth gradient from red → white → blue; (300) generates 300 shades between these colors for smoother color transitions
-
 # Add correlation values as numbers        
 corrplot(cor_matrix,
          method = "color",
@@ -122,7 +112,7 @@ plot(JobPostings, UnemploymentRate,
 
 ggsave("chatgptplot.png", width = 10, height = 10, dpi = 300) # save image
 
-ggplot(data = AI_Cust_Serv_Project, aes(x = ChatGPT, y = `JobPostings`)) +
+ggplot(data = AI_Cust_Serv_Project, aes(x = ChatGPTTrend, y = JobPostings)) +
   geom_point(col = "purple") +
   labs(x = "ChatGPT", y = "Job Postings", title = "ChatGPT vs. Job Postings") +
   theme_minimal()
@@ -136,7 +126,7 @@ ggplot(data = AI_Cust_Serv_Project, aes(x = UnemploymentRate, y = JobPostings)) 
   theme_minimal()
 
 
-ggplot(AI_Cust_Serv_Project, aes(x = ChatGPT, y = JobPostings)) +
+ggplot(AI_Cust_Serv_Project, aes(x = ChatGPTTrend, y = JobPostings)) +
   geom_point(col = "purple") +
   geom_smooth(method = "lm", se = TRUE, color = "gold") +
   labs(x = "ChatGPT", y = "Job Postings", title = "Scatterplot with Regression Line") +
@@ -155,18 +145,24 @@ ggplot(AI_Cust_Serv_Project, aes(x = UnemploymentRate, y = JobPostings)) +
 
 # T-test for mean of one group
 t.test(JobPostings, cutoff=61) 
-t.test(ChatGPT, cutoff=61) 
+t.test(ChatGPTTrend, cutoff=61) 
 t.test(AIHeadlineShare, cutoff=61) 
 t.test(UnemploymentRate, cutoff=61) 
 
 
 # OLS regression - testscr (dependent variable); str (explanatory variables)
-olsreg_1 <- lm(JobPostings ~ ChatGPT)
+olsreg_1 <- lm(JobPostings ~ ChatGPTTrend)
 summary(olsreg_1)
 olsreg_2 <- lm(JobPostings ~ AIHeadlineShare)
 summary(olsreg_2)
 olsreg_3 <- lm(JobPostings ~ UnemploymentRate)
 summary(olsreg_3)
+
+# Construct a table
+install.packages("stargazer")
+library(stargazer)
+
+stargazer(olsreg_1, olsreg_2, olsreg_3, type = "html", out = "simple_regression_table.html", title = "Regression Results" )
 
 # Additional exercise: Test for heteroskedasticity
 # Null hypothesis (H₀): Homoskedasticity (equal variance of errors); Alternative hypothesis (H₁): Heteroskedasticity (variance of errors depends on one or more regressors)
@@ -201,7 +197,7 @@ library(sandwich)
 library(lmtest)
 
 #summary(lm(testscr ~ str))
-olsreg_4 <- lm(JobPostings ~ ChatGPT)
+olsreg_4 <- lm(JobPostings ~ ChatGPTTrend)
 coeftest(olsreg_4, vcov = sandwich)
 coeftest(olsreg_4, vcov = vcovHC(olsreg_4, type="HC0")) # sandwich SE is the same as HC0
 coeftest(olsreg_4, vcov = vcovHC(olsreg_4, type="HC1")) # Heteroskedasticity-consistent (HC) standard errors; HC1 is preferred for small samples
@@ -216,22 +212,23 @@ coeftest(olsreg_6, vcov = vcovHC(olsreg_6, type="HC1")) # Heteroskedasticity-con
 
 
 # OLS Multivariate regression - testscr (dependent variable); str + el_pct (explanatory variables)
-olsreg_multi_1 <- lm(JobPostings ~ ChatGPT + AIHeadlineShare)
+olsreg_multi_1 <- lm(JobPostings ~ ChatGPTTrend + AIHeadlineShare)
 coeftest(olsreg_multi_1, vcov = vcovHC(olsreg_multi_1, type="HC1"))
 summary(olsreg_multi_1)
 olsreg_multi_2 <- lm(JobPostings ~ AIHeadlineShare + UnemploymentRate)
 coeftest(olsreg_multi_2, vcov = vcovHC(olsreg_multi_2, type="HC1"))
 summary(olsreg_multi_2)
-olsreg_multi_3 <- lm(JobPostings ~ UnemploymentRate + ChatGPT)
+olsreg_multi_3 <- lm(JobPostings ~ UnemploymentRate + ChatGPTTrend)
 coeftest(olsreg_multi_3, vcov = vcovHC(olsreg_multi_3, type="HC1"))
 summary(olsreg_multi_3)
-olsreg_multi_4 <- lm(JobPostings ~ ChatGPT + AIHeadlineShare + UnemploymentRate)
+olsreg_multi_4 <- lm(JobPostings ~ ChatGPTTrend + AIHeadlineShare + UnemploymentRate)
 coeftest(olsreg_multi_4, vcov = vcovHC(olsreg_multi_4, type="HC1"))
 summary(olsreg_multi_4)
 
+stargazer(olsreg_multi_1, olsreg_multi_2, olsreg_multi_3, olsreg_multi_4, type = "html", out = "multivariate_regression_table.html", title = "Regression Results" )
 
 # Joint hypothesis testing
-joint_hypo <- lm(JobPostings ~ ChatGPT + AIHeadlineShare + UnemploymentRate, data = AI_Cust_Serv_Project)
+joint_hypo <- lm(JobPostings ~ ChatGPTTrend + AIHeadlineShare + UnemploymentRate, data = AI_Cust_Serv_Project)
 coeftest(joint_hypo, vcov = vcovHC(joint_hypo, type="HC1"))
 
 # robust joint F-test (heteroskedasticity-consistent SE); need to combine the car and sandwich packages.
@@ -243,18 +240,36 @@ library(car)
 library(sandwich)
 
 linearHypothesis(joint_hypo, 
-                 c("female = 0", "bachelor = 0"), 
+                 c("ChatGPTTrend = 0", "AIHeadlineShare = 0"), 
+                 vcov = vcovHC(joint_hypo, type = "HC1")) # robust variance-covariance matrix; reject the null, at least one of str or expn_stu matters for predicting testsc
+linearHypothesis(joint_hypo, 
+                 c("ChatGPTTrend = 0", "UnemploymentRate = 0"), 
+                 vcov = vcovHC(joint_hypo, type = "HC1")) # robust variance-covariance matrix; reject the null, at least one of str or expn_stu matters for predicting testsc
+linearHypothesis(joint_hypo, 
+                 c("AIHeadlineShare = 0", "UnemploymentRate = 0"), 
                  vcov = vcovHC(joint_hypo, type = "HC1")) # robust variance-covariance matrix; reject the null, at least one of str or expn_stu matters for predicting testsc
 
 # Restriction on coefficients
 
-linearHypothesis(olsreg3,
-                 "str = expn_stu",
+linearHypothesis(joint_hypo,
+                 "ChatGPTTrend = AIHeadlineShare",
+                 vcov = vcovHC(olsreg3, type = "HC1")) # robust joint F-test (heteroskedasticity-consistent SE)
+linearHypothesis(joint_hypo,
+                 "ChatGPTTrend = UnemploymentRate",
+                 vcov = vcovHC(olsreg3, type = "HC1")) # robust joint F-test (heteroskedasticity-consistent SE)
+linearHypothesis(joint_hypo,
+                 "AIHeadlineShare = UnemploymentRate",
                  vcov = vcovHC(olsreg3, type = "HC1")) # robust joint F-test (heteroskedasticity-consistent SE)
 
 
-linearHypothesis(olsreg3,
-                 "str + expn_stu =1",
+linearHypothesis(joint_hypo,
+                 "ChatGPTTrend + AIHeadlineShare = 1",
+                 vcov = vcovHC(olsreg3, type = "HC1")) # robust joint F-test (heteroskedasticity-consistent SE); testing if the sum of coefficients on str and expn_stu is 1 
+linearHypothesis(joint_hypo,
+                 "ChatGPTTrend + UnemploymentRate = 1",
+                 vcov = vcovHC(olsreg3, type = "HC1")) # robust joint F-test (heteroskedasticity-consistent SE); testing if the sum of coefficients on str and expn_stu is 1 
+linearHypothesis(joint_hypo,
+                 "AIHeadlineShare + UnemploymentRate = 1",
                  vcov = vcovHC(olsreg3, type = "HC1")) # robust joint F-test (heteroskedasticity-consistent SE); testing if the sum of coefficients on str and expn_stu is 1 
 
 
