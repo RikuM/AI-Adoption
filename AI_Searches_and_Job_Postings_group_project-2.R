@@ -54,9 +54,6 @@ cor(AIHeadlineShare, UnemploymentRate)
 # (2) Correlation among multiple selected numerical variables
 cor(AI_Cust_Serv_Project[, c("JobPostings", "ChatGPTTrend", "AIHeadlineShare", "UnemploymentRate")])
 
-# (3) Correlation among all numerical variables
-cor(AI_Cust_Serv_Project) # it will give an error message, because there are non-numeric variables in this dataset
-
 # Correct steps: 
 
 # (i) Select only numeric variables from dataset
@@ -148,20 +145,6 @@ t.test(AIHeadlineShare, cutoff=61)
 t.test(UnemploymentRate, cutoff=61) 
 
 
-# OLS regression - testscr (dependent variable); str (explanatory variables)
-olsreg_1 <- lm(JobPostings ~ ChatGPTTrend)
-summary(olsreg_1)
-olsreg_2 <- lm(JobPostings ~ AIHeadlineShare)
-summary(olsreg_2)
-olsreg_3 <- lm(JobPostings ~ UnemploymentRate)
-summary(olsreg_3)
-
-# Construct a table
-install.packages("stargazer")
-library(stargazer)
-
-stargazer(olsreg_1, olsreg_2, olsreg_3, type = "html", out = "simple_regression_table.html", title = "Regression Results" )
-
 # Additional exercise: Test for heteroskedasticity
 # Null hypothesis (H₀): Homoskedasticity (equal variance of errors); Alternative hypothesis (H₁): Heteroskedasticity (variance of errors depends on one or more regressors)
 library(lmtest)
@@ -194,7 +177,7 @@ install.packages("lmtest")
 library(sandwich)
 library(lmtest)
 
-#summary(lm(testscr ~ str))
+#summary
 olsreg_4 <- lm(JobPostings ~ ChatGPTTrend)
 coeftest(olsreg_4, vcov = sandwich)
 coeftest(olsreg_4, vcov = vcovHC(olsreg_4, type="HC0")) # sandwich SE is the same as HC0
@@ -210,20 +193,111 @@ coeftest(olsreg_6, vcov = vcovHC(olsreg_6, type="HC1")) # Heteroskedasticity-con
 
 
 # OLS Multivariate regression - testscr (dependent variable); str + el_pct (explanatory variables)
-olsreg_multi_1 <- lm(JobPostings ~ ChatGPTTrend + AIHeadlineShare)
+olsreg_multi_1 <- lm(JobPostings ~ ChatGPTTrend)
 coeftest(olsreg_multi_1, vcov = vcovHC(olsreg_multi_1, type="HC1"))
 summary(olsreg_multi_1)
-olsreg_multi_2 <- lm(JobPostings ~ AIHeadlineShare + UnemploymentRate)
+olsreg_multi_2 <- lm(JobPostings ~ ChatGPTTrend + AIHeadlineShare)
 coeftest(olsreg_multi_2, vcov = vcovHC(olsreg_multi_2, type="HC1"))
 summary(olsreg_multi_2)
-olsreg_multi_3 <- lm(JobPostings ~ UnemploymentRate + ChatGPTTrend)
+olsreg_multi_3 <- lm(JobPostings ~ ChatGPTTrend + AIHeadlineShare + ChatGPTTrend:AIHeadlineShare)
 coeftest(olsreg_multi_3, vcov = vcovHC(olsreg_multi_3, type="HC1"))
 summary(olsreg_multi_3)
-olsreg_multi_4 <- lm(JobPostings ~ ChatGPTTrend + AIHeadlineShare + UnemploymentRate)
+
+olsreg_multi_4 <- lm(JobPostings ~ AIHeadlineShare)
 coeftest(olsreg_multi_4, vcov = vcovHC(olsreg_multi_4, type="HC1"))
 summary(olsreg_multi_4)
+olsreg_multi_5 <- lm(JobPostings ~ AIHeadlineShare + UnemploymentRate)
+coeftest(olsreg_multi_5, vcov = vcovHC(olsreg_multi_5, type="HC1"))
+summary(olsreg_multi_5)
+olsreg_multi_6 <- lm(JobPostings ~ AIHeadlineShare + UnemploymentRate + AIHeadlineShare:UnemploymentRate)
+coeftest(olsreg_multi_6, vcov = vcovHC(olsreg_multi_6, type="HC1"))
+summary(olsreg_multi_6)
 
-stargazer(olsreg_multi_1, olsreg_multi_2, olsreg_multi_3, olsreg_multi_4, type = "html", out = "multivariate_regression_table.html", title = "Regression Results" )
+olsreg_multi_7 <- lm(JobPostings ~ UnemploymentRate)
+coeftest(olsreg_multi_7, vcov = vcovHC(olsreg_multi_7, type="HC1"))
+summary(olsreg_multi_7)
+olsreg_multi_8 <- lm(JobPostings ~ UnemploymentRate + ChatGPTTrend)
+coeftest(olsreg_multi_8, vcov = vcovHC(olsreg_multi_8, type="HC1"))
+summary(olsreg_multi_8)
+olsreg_multi_9 <- lm(JobPostings ~ UnemploymentRate + ChatGPTTrend + UnemploymentRate:ChatGPTTrend)
+coeftest(olsreg_multi_9, vcov = vcovHC(olsreg_multi_9, type="HC1"))
+summary(olsreg_multi_9)
+
+olsreg_multi_10 <- lm(JobPostings ~ ChatGPTTrend)
+coeftest(olsreg_multi_10, vcov = vcovHC(olsreg_multi_10, type="HC1"))
+summary(olsreg_multi_10)
+olsreg_multi_11 <- lm(JobPostings ~ ChatGPTTrend + AIHeadlineShare)
+coeftest(olsreg_multi_11, vcov = vcovHC(olsreg_multi_11, type="HC1"))
+summary(olsreg_multi_11)
+olsreg_multi_12 <- lm(JobPostings ~ ChatGPTTrend + AIHeadlineShare + UnemploymentRate)
+coeftest(olsreg_multi_12, vcov = vcovHC(olsreg_multi_12, type="HC1"))
+summary(olsreg_multi_12)
+olsreg_multi_13 <- lm(JobPostings ~ ChatGPTTrend + AIHeadlineShare + UnemploymentRate + ChatGPTTrend:AIHeadlineShare)
+coeftest(olsreg_multi_13, vcov = vcovHC(olsreg_multi_13, type="HC1"))
+summary(olsreg_multi_13)
+olsreg_multi_14 <- lm(JobPostings ~ ChatGPTTrend + AIHeadlineShare + UnemploymentRate + ChatGPTTrend:UnemploymentRate)
+coeftest(olsreg_multi_14, vcov = vcovHC(olsreg_multi_14, type="HC1"))
+summary(olsreg_multi_14)
+olsreg_multi_15 <- lm(JobPostings ~ ChatGPTTrend + AIHeadlineShare + UnemploymentRate + AIHeadlineShare:UnemploymentRate)
+coeftest(olsreg_multi_15, vcov = vcovHC(olsreg_multi_15, type="HC1"))
+summary(olsreg_multi_15)
+
+olsreg_multi_16 <- lm(JobPostings ~ AIHeadlineShare)
+coeftest(olsreg_multi_16, vcov = vcovHC(olsreg_multi_16, type="HC1"))
+summary(olsreg_multi_16)
+olsreg_multi_17 <- lm(JobPostings ~ AIHeadlineShare + UnemploymentRate)
+coeftest(olsreg_multi_17, vcov = vcovHC(olsreg_multi_17, type="HC1"))
+summary(olsreg_multi_17)
+olsreg_multi_18 <- lm(JobPostings ~ AIHeadlineShare + UnemploymentRate + ChatGPTTrend)
+coeftest(olsreg_multi_18, vcov = vcovHC(olsreg_multi_18, type="HC1"))
+summary(olsreg_multi_18)
+olsreg_multi_19 <- lm(JobPostings ~ AIHeadlineShare + UnemploymentRate + ChatGPTTrend + AIHeadlineShare:UnemploymentRate)
+coeftest(olsreg_multi_19, vcov = vcovHC(olsreg_multi_19, type="HC1"))
+summary(olsreg_multi_19)
+olsreg_multi_20 <- lm(JobPostings ~ AIHeadlineShare + UnemploymentRate + ChatGPTTrend + AIHeadlineShare:ChatGPTTrend)
+coeftest(olsreg_multi_20, vcov = vcovHC(olsreg_multi_20, type="HC1"))
+summary(olsreg_multi_20)
+olsreg_multi_21 <- lm(JobPostings ~ AIHeadlineShare + UnemploymentRate + ChatGPTTrend + UnemploymentRate:ChatGPTTrend)
+coeftest(olsreg_multi_21, vcov = vcovHC(olsreg_multi_21, type="HC1"))
+summary(olsreg_multi_21)
+
+olsreg_multi_22 <- lm(JobPostings ~ UnemploymentRate)
+coeftest(olsreg_multi_22, vcov = vcovHC(olsreg_multi_22, type="HC1"))
+summary(olsreg_multi_22)
+olsreg_multi_23 <- lm(JobPostings ~ UnemploymentRate + ChatGPTTrend)
+coeftest(olsreg_multi_23, vcov = vcovHC(olsreg_multi_23, type="HC1"))
+summary(olsreg_multi_23)
+olsreg_multi_24 <- lm(JobPostings ~ UnemploymentRate + ChatGPTTrend + AIHeadlineShare)
+coeftest(olsreg_multi_24, vcov = vcovHC(olsreg_multi_24, type="HC1"))
+summary(olsreg_multi_24)
+olsreg_multi_25 <- lm(JobPostings ~ UnemploymentRate + ChatGPTTrend + AIHeadlineShare + UnemploymentRate:ChatGPTTrend)
+coeftest(olsreg_multi_25, vcov = vcovHC(olsreg_multi_25, type="HC1"))
+summary(olsreg_multi_25)
+olsreg_multi_26 <- lm(JobPostings ~ UnemploymentRate + ChatGPTTrend + AIHeadlineShare + UnemploymentRate:AIHeadlineShare)
+coeftest(olsreg_multi_26, vcov = vcovHC(olsreg_multi_26, type="HC1"))
+summary(olsreg_multi_26)
+olsreg_multi_27 <- lm(JobPostings ~ UnemploymentRate + ChatGPTTrend + AIHeadlineShare + ChatGPTTrend:AIHeadlineShare)
+coeftest(olsreg_multi_27, vcov = vcovHC(olsreg_multi_27, type="HC1"))
+summary(olsreg_multi_27)
+
+# Construct a table
+install.packages("stargazer")
+library(stargazer)
+
+stargazer(olsreg_multi_1, olsreg_multi_2, olsreg_multi_3, type = "html", out = "multivariate_regression_table_1.html", title = "Regression Results 1" )
+stargazer(olsreg_multi_4, olsreg_multi_5, olsreg_multi_6, type = "html", out = "multivariate_regression_table_2.html", title = "Regression Results 2" )
+stargazer(olsreg_multi_7, olsreg_multi_8, olsreg_multi_9, type = "html", out = "multivariate_regression_table_3.html", title = "Regression Results 3" )
+
+install.packages("modelsummary")
+library(modelsummary)
+
+models_list_1 <- list("Model 10" = olsreg_multi_10, "Model 11" = olsreg_multi_11, "Model 12" = olsreg_multi_12, "Model 13" = olsreg_multi_13, "Model 14" = olsreg_multi_14, "Model 15" = olsreg_multi_15)
+models_list_2 <- list("Model 16" = olsreg_multi_16, "Model 17" = olsreg_multi_17, "Model 18" = olsreg_multi_18, "Model 19" = olsreg_multi_19, "Model 20" = olsreg_multi_20, "Model 21" = olsreg_multi_21)
+models_list_3 <- list("Model 22" = olsreg_multi_22, "Model 23" = olsreg_multi_23, "Model 24" = olsreg_multi_24, "Model 25" = olsreg_multi_25, "Model 26" = olsreg_multi_26, "Model 27" = olsreg_multi_27)
+
+modelsummary(models_list_1, out = "multivariate_regression_table_interaction_1.html", title = "Regression Results with Interaction Term 1" )
+modelsummary(models_list_2, out = "multivariate_regression_table_interaction_2.html", title = "Regression Results with Interaction Term 2" )
+modelsummary(models_list_3, out = "multivariate_regression_table_interaction_3.html", title = "Regression Results with Interaction Term 3" )
 
 # Joint hypothesis testing
 joint_hypo <- lm(JobPostings ~ ChatGPTTrend + AIHeadlineShare + UnemploymentRate, data = AI_Cust_Serv_Project)
