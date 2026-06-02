@@ -14,7 +14,9 @@ install.packages("stargazer")
 install.packages("sandwich")
 install.packages("lmtest")
 install.packages("car")
-
+install.packages("modelsummary")
+install.packages("tibble")
+install.packages("knitr")
 
 
 
@@ -30,7 +32,9 @@ library(corrplot)
 library(lmtest)
 library(sandwich)
 library(car)
-
+library(modelsummary)
+library(tibble)
+library(knitr)
 
 #Import Data ----
 df <- read.csv("data files/final_data.csv")
@@ -142,6 +146,41 @@ ggplot() +
 
 
 #Linear Regression ----
+model_1 <- lm(JobPostings ~ ChatGPTTrend, data = df)
 
+model_2 <- lm(JobPostings ~ AIHeadlineShare, data = df)
+
+model_3 <- lm(JobPostings ~ UnemploymentRate, data = df)
+
+model_4 <- lm(
+  JobPostings ~ ChatGPTTrend + AIHeadlineShare + UnemploymentRate,
+  data = df
+)
+
+model_5 <- lm(
+  JobPostings ~ ChatGPTTrend * AIHeadlineShare + UnemploymentRate,
+  data = df
+)
+
+model_6 <- lm(
+  JobPostings ~ AIHeadlineShare * UnemploymentRate + ChatGPTTrend,
+  data = df
+)
+
+models <- list(
+  "ChatGPT Trend" = model_1,
+  "AI Job Headline" = model_2,
+  "Unemployment Rate" = model_3,
+  "Full Model" = model_4,
+  "ChatGPT x AI Headline" = model_5,
+  "AI Headline x Unemployment" = model_6
+)
+
+modelsummary(
+  models,
+  vcov = "HC1",
+  out = "regression_results.html",
+  title = "Regression Results with Robust Standard Errors"
+)
 
 #Etc Etc ----
