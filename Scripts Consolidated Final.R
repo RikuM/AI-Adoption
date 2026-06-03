@@ -17,7 +17,8 @@ install.packages("car")
 install.packages("modelsummary")
 install.packages("tibble")
 install.packages("knitr")
-
+install.packages("gt")
+install.packages("webshot2")
 
 
 #libraries ----
@@ -34,7 +35,8 @@ library(sandwich)
 library(car)
 library(modelsummary)
 library(viridis)
-
+library(webshot2)
+library(gt)
 #Import Data ----
 df <- read.csv("data files/final_data.csv")
 df <- df %>%
@@ -46,6 +48,11 @@ df <- df %>%
 scale_factor_ChatGPT = max(df$JobPostings, na.rm = TRUE) / max(df$ChatGPTTrend, na.rm = TRUE)
 scale_factor_AI = max(df$JobPostings, na.rm = TRUE) / max(df$AIHeadlineShare, na.rm = TRUE)
 
+custom_colors <- colorRampPalette(c(
+  "purple", 
+  "white",
+  "#2E6F40"
+))(200)
 
 
   #Min Max Std Dev
@@ -87,7 +94,7 @@ corrplot(
   corr_matrix,
   method = "color",
   type = "upper",
-  col = plasma(200),
+  col = custom_colors,
   outline = FALSE,
   addCoef.col = "black",
   number.cex = 0.8,
@@ -351,9 +358,11 @@ ggsave(
 #Linear Regression ----
 model_1 <- lm(JobPostings ~ ChatGPTTrend, data = df)
 
-model_2 <- lm(JobPostings ~ AIHeadlineShare, data = df)
+model_2 <- lm(JobPostings ~ ChatGPTTrend + AIHeadlineShare, data = df)
 
-model_3 <- lm(JobPostings ~ UnemploymentRate, data = df)
+model_3 <- lm(JobPostings ~ ChatGPTTrend +  UnemploymentRate, data = df)
+
+model_3.5 <- lm(JobPostings ~ AIHeadlineShare +  UnemploymentRate, data = df)
 
 model_4 <- lm(
   JobPostings ~ ChatGPTTrend + AIHeadlineShare + UnemploymentRate,
@@ -370,19 +379,38 @@ model_6 <- lm(
   data = df
 )
 
-models <- list(
+model_7 <- lm(
+  JobPostings ~ ChatGPTTrend * UnemploymentRate + AIHeadlineShare,
+  data = df
+)
+
+models_1 <- list(
   "ChatGPT Trend" = model_1,
-  "AI Job Headline" = model_2,
-  "Unemployment Rate" = model_3,
-  "Full Model" = model_4,
+  "ChatGPT Trend + AI Job Headline" = model_2,
+  "ChatGPT Trend + Unemployment Rate " = model_3,
+  "AI Headline + Unemployment Rate" = model_3.5,
+  "Full Model" = model_4
+)
+  
+
+models_2 <- list(
   "ChatGPT x AI Headline" = model_5,
-  "AI Headline x Unemployment" = model_6
+  "AI Headline x Unemployment" = model_6,
+  "ChatGPT x Unemployment Rate" = model_7
+)
+
+
+modelsummary(
+  models_1,
+  vcov = "HC1",
+  out = "regression_results_1.html",
+  title = "Regression Results with Robust Standard Errors"
 )
 
 modelsummary(
-  models,
+  models_2,
   vcov = "HC1",
-  out = "regression_results.html",
+  out = "regression_results_2.html",
   title = "Regression Results with Robust Standard Errors"
 )
 
@@ -392,3 +420,53 @@ coeftest(
 )
 
 #Etc Etc ----
+
+reg_table <- modelsummary(
+  models_1,
+  vcov = "HC1",
+  title = "Regression Results with Robust Standard Errors",
+  output = "gt"
+) %>%
+  tab_options(
+    # transparent backgrounds
+    table.background.color = "transparent",
+    heading.background.color = "transparent",
+    column_labels.background.color = "transparent",
+    
+    # white text
+    table.font.color = "white",
+    table.font.color.light = "white",
+    
+    # borders
+    table.border.top.color = "white",
+    table.border.bottom.color = "white",
+    column_labels.border.top.color = "white",
+    column_labels.border.bottom.color = "white",
+    table_body.border.top.color = "white",
+    table_body.border.bottom.color = "white",
+    
+    # sizing
+    table.font.size = px(12),
+    heading.title.font.size = px(16),
+    column_labels.font.size = px(12),
+    data_row.padding = px(6)
+  ) %>%
+  tab_style(
+    style = cell_text(color = "white", weight = "bold"),
+    locations = cells_title(groups = "title")
+  ) %>%
+  tab_style(
+    style = cell_text(color = "white", weight = "bold"),
+    locations = cells_column_labels()
+  ) %>%
+  tab_style(
+    style = cell_text(color = "white"),
+    locations = cells_body()
+  )
+
+gtsave(
+  reg_table,
+  "regression_results_2_transparent.png",
+  zoom = 3,
+  expand = 10
+)
