@@ -104,7 +104,7 @@ corrplot(
 
 dev.off()
 
-#ChatGPT Search vs Cusomter Service Jobs Line Graph ----
+#ChatGPT Search vs Customer Service Jobs Line Graph ----
 pp <- ggplot() +
   geom_line(
     data = df,
@@ -351,8 +351,6 @@ ggsave(
   dpi = 300,
   bg = "transparent"
 )
-#Scatter Plots ----
-
 
 #Linear Regression ----
 model_1 <- lm(JobPostings ~ ChatGPTTrend, data = df)
@@ -399,26 +397,11 @@ models_2 <- list(
 )
 
 
-#modelsummary(
-#  models_1,
-#  vcov = "HC1",
-#  out = "regression_results_1.html",
-#  title = "Regression Results with Robust Standard Errors"
-#)
-
-#modelsummary(
-#  models_2,
-#  vcov = "HC1",
-#  out = "regression_results_2.html",
-#  title = "Regression Results with Robust Standard Errors"
-#)
-
 
 # Chroma-key background color.
-# Use a color that is NOT used anywhere in the table.
 key_bg <- "#00FF00"
 
-# Adjustable settings ----
+#Regression Tables ----
 separator_row <- 9  
 separator_width <- 2
 separator_color <- "rgba(255, 255, 255, 1)"
@@ -651,11 +634,7 @@ coeftest(
   vcov. = NeweyWest(model_4)
 )
 
-#Etc Etc ----
-
-library(dplyr)
-library(ggplot2)
-
+#Real vs Predicted ----
 df_model4 <- df %>%
   mutate(
     predicted_model_4 = predict(model_4, newdata = df),
@@ -743,9 +722,6 @@ p_actual_predicted_4 <- ggplot(df_model4, aes(x = Month)) +
     panel.grid.major.x = element_line(color = "gray85", linewidth = 0.3)
   )
 
-#p_actual_predicted_4
-
-
 
 ggsave(
   "monthly_trend_clear_background_actual_vs_predicted.png",
@@ -755,92 +731,3 @@ ggsave(
   dpi = 300,
   bg = "transparent"
 )
-library(dplyr)
-library(ggplot2)
-
-# Store means of control variables
-mean_chatgpt <- mean(df$ChatGPTTrend, na.rm = TRUE)
-mean_ai <- mean(df$AIHeadlineShare, na.rm = TRUE)
-mean_unemp <- mean(df$UnemploymentRate, na.rm = TRUE)
-
-# Prediction data for ChatGPTTrend
-chatgpt_effect <- data.frame(
-  Predictor = "ChatGPT Search Trend",
-  x_value = seq(
-    min(df$ChatGPTTrend, na.rm = TRUE),
-    max(df$ChatGPTTrend, na.rm = TRUE),
-    length.out = 100
-  ),
-  ChatGPTTrend = seq(
-    min(df$ChatGPTTrend, na.rm = TRUE),
-    max(df$ChatGPTTrend, na.rm = TRUE),
-    length.out = 100
-  ),
-  AIHeadlineShare = mean_ai,
-  UnemploymentRate = mean_unemp
-)
-
-# Prediction data for AIHeadlineShare
-ai_effect <- data.frame(
-  Predictor = "AI Headline Share",
-  x_value = seq(
-    min(df$AIHeadlineShare, na.rm = TRUE),
-    max(df$AIHeadlineShare, na.rm = TRUE),
-    length.out = 100
-  ),
-  ChatGPTTrend = mean_chatgpt,
-  AIHeadlineShare = seq(
-    min(df$AIHeadlineShare, na.rm = TRUE),
-    max(df$AIHeadlineShare, na.rm = TRUE),
-    length.out = 100
-  ),
-  UnemploymentRate = mean_unemp
-)
-
-# Prediction data for UnemploymentRate
-unemp_effect <- data.frame(
-  Predictor = "Unemployment Rate",
-  x_value = seq(
-    min(df$UnemploymentRate, na.rm = TRUE),
-    max(df$UnemploymentRate, na.rm = TRUE),
-    length.out = 100
-  ),
-  ChatGPTTrend = mean_chatgpt,
-  AIHeadlineShare = mean_ai,
-  UnemploymentRate = seq(
-    min(df$UnemploymentRate, na.rm = TRUE),
-    max(df$UnemploymentRate, na.rm = TRUE),
-    length.out = 100
-  )
-)
-
-# Combine all effect datasets
-effect_df <- bind_rows(
-  chatgpt_effect,
-  ai_effect,
-  unemp_effect
-)
-
-# Predicted job postings from model 4
-effect_df$PredictedJobPostings <- predict(model_4, newdata = effect_df)
-
-# Plot
-p_model4_effects <- ggplot(
-  effect_df,
-  aes(x = x_value, y = PredictedJobPostings)
-) +
-  geom_line(color = "deeppink", linewidth = 1.3) +
-  facet_wrap(~ Predictor, scales = "free_x") +
-  labs(
-    title = "Model 4: Predicted Job Postings by Predictor",
-    subtitle = "Each graph holds the other two variables at their average values",
-    x = "Predictor Value",
-    y = "Predicted Customer Service Job Postings"
-  ) +
-  theme_minimal() +
-  theme(
-    plot.title = element_text(face = "bold"),
-    strip.text = element_text(face = "bold")
-  )
-
-p_model4_effects
