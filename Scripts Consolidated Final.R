@@ -1,41 +1,28 @@
 #Final Version of our R script
 #Everything will be consolidated in here with documentation
 
-#install packages ----
-install.packages("readr")
-install.packages("readxl")
+# install packages ----
 install.packages("dplyr")
 install.packages("lubridate")
 install.packages("ggplot2")
-install.packages("writexl")
-install.packages("psych")
 install.packages("corrplot")
-install.packages("stargazer")
-install.packages("sandwich")
 install.packages("lmtest")
-install.packages("car")
+install.packages("sandwich")
 install.packages("modelsummary")
-install.packages("tibble")
-install.packages("knitr")
 install.packages("gt")
 install.packages("magick")
 
-#libraries ----
-library(readr)
-library(readxl)
+# libraries ----
 library(dplyr)
 library(lubridate)
 library(ggplot2)
-library(writexl)
-library(psych)
 library(corrplot)
 library(lmtest)
 library(sandwich)
-library(car)
 library(modelsummary)
-library(viridis)
-library(magick)
 library(gt)
+library(magick)
+
 #Import Data ----
 df <- read.csv("data files/final_data.csv")
 df <- df %>%
