@@ -534,10 +534,10 @@ reg_table_2 <- modelsummary(
     table_body.hlines.width = px(0),
     
     # Sizing
-    table.font.size = px(font_size_body),
-    heading.title.font.size = px(font_size_title),
-    column_labels.font.size = px(font_size_columns),
-    data_row.padding = px(row_padding)
+    table.font.size = px(12),
+    heading.title.font.size = px(16),
+    column_labels.font.size = px(12),
+    data_row.padding = px(6)
   ) %>%
   tab_style(
     style = cell_text(color = "white", weight = "bold"),
